@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29201.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USARTBootloader", "USARTBootloader\USARTBootloader.csproj", "{CD0E867C-E33A-4B02-A3A2-DF1941F502FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USARTBootloaderDemo", "USARTBootloaderDemo\USARTBootloaderDemo.csproj", "{F33753C8-A088-4A7A-8AA5-FB2DED8C8AAF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD0E867C-E33A-4B02-A3A2-DF1941F502FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD0E867C-E33A-4B02-A3A2-DF1941F502FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD0E867C-E33A-4B02-A3A2-DF1941F502FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD0E867C-E33A-4B02-A3A2-DF1941F502FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F33753C8-A088-4A7A-8AA5-FB2DED8C8AAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F33753C8-A088-4A7A-8AA5-FB2DED8C8AAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F33753C8-A088-4A7A-8AA5-FB2DED8C8AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F33753C8-A088-4A7A-8AA5-FB2DED8C8AAF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7ACA298C-7B3C-4E71-8F15-4348F1907C6D}
+	EndGlobalSection
+EndGlobal
