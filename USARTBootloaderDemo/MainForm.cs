@@ -208,8 +208,8 @@ namespace STM32_USART_Bootloader_Form {
             port.ReadTimeout = 250;
             port.WriteTimeout = 250;
 
-            //USARTBootloader loader = new USARTBootloader(port);
-            FTDIUSARTBootloader loader = new FTDIUSARTBootloader(port);
+            USARTBootloader loader = new USARTBootloader(port);
+            //FTDIUSARTBootloader loader = new FTDIUSARTBootloader(port);
             loader.Open();
             return loader;
         }
