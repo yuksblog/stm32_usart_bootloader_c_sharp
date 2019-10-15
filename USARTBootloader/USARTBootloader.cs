@@ -49,6 +49,8 @@ namespace ST.Boot.USART {
 
         protected SerialPort port;
 
+        protected bool isInitialized = false;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -61,41 +63,13 @@ namespace ST.Boot.USART {
             port.DiscardOutBuffer();
             port.DiscardInBuffer();
         }
-
-        protected virtual void OpenInternal() {
-            // ポートオープン
-            port.Open();
-        }
-
+        
         /// <summary>
         /// ポートのオープン
         /// </summary>
-        public void Open() {
-            if (port != null) {
-                OpenInternal();
-
-                Exception ex = null;
-                for (var i = 0; i < RETRY_COUNT; i++) {
-                    try {
-                        // 初期化コマンド送信
-                        Send(Command_Init);
-
-                        // ACKを待つ
-                        WaitACK();
-                        break;
-
-                    } catch (USARTBootloaderNACKException bne) {
-                        // NACKでもOK
-                        break;
-                    } catch (Exception ee) {
-                        // それ以外はNG
-                        ex = ee;
-                    }
-
-                    if (i == RETRY_COUNT - 1) {
-                        throw new InvalidOperationException("Device is in illegal state. Failed to initialized.", ex);
-                    }
-                }
+        public virtual void Open() {
+            if (!IsOpen()) {
+                port.Open();
             }
         }
 
@@ -103,6 +77,7 @@ namespace ST.Boot.USART {
         /// ポートのクローズ
         /// </summary>
         public virtual void Close() {
+            isInitialized = false;
             port.Close();
         }
 
@@ -164,9 +139,41 @@ namespace ST.Boot.USART {
         }
 
         private void CheckStatus() {
-            if (!IsOpen()) {
+            if (!IsOpen() || (IsOpen() && !isInitialized)) {
                 throw new InvalidOperationException("Device is not initialized yet.");
             }
+        }
+
+        public void Init() {
+            if (!IsOpen()) {
+                throw new InvalidOperationException("Connection is not opened yet.");
+            }
+
+            for (var i = 0; i < RETRY_COUNT; i++) {
+
+                Exception ex;
+                try {
+                    // 初期化コマンド送信
+                    Send(Command_Init);
+
+                    // ACKを待つ
+                    WaitACK();
+                    break;
+
+                } catch (USARTBootloaderNACKException bne) {
+                    // NACKでもOK
+                    break;
+                } catch (Exception ee) {
+                    // それ以外はNG
+                    ex = ee;
+                }
+
+                if (i == RETRY_COUNT - 1) {
+                    throw new InvalidOperationException("Device is in illegal state. Failed to initialized.", ex);
+                }
+            }
+
+            isInitialized = true;
         }
 
         /// <summary>
@@ -429,10 +436,18 @@ namespace ST.Boot.USART {
             throw new NotImplementedException("ReadUnprotect is not implemented.");
         }
 
+        /// <summary>
+        /// RTSを操作する
+        /// </summary>
+        /// <param name="enable"></param>
         public virtual void SetRts(bool enable) {
             port.RtsEnable = enable;
         }
 
+        /// <summary>
+        /// DTRを操作する
+        /// </summary>
+        /// <param name="enable"></param>
         public virtual void SetDtr(bool enable) {
             port.DtrEnable = enable;
         }

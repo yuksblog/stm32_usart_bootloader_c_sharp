@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static FTD2XX_NET.FTDI;
 
 namespace STM32_USART_Bootloader_Form {
     public partial class MainForm : Form {
@@ -22,6 +23,8 @@ namespace STM32_USART_Bootloader_Form {
         private static int READ_WRITE_BLOCK_SIZE = 256;
 
         private static int BASE_ADDRESS = 0x08000000;
+
+        private USARTBootloader loader = null;
 
         public MainForm() {
             InitializeComponent();
@@ -82,10 +85,13 @@ namespace STM32_USART_Bootloader_Form {
             // バイナリファイルの取得
             byte[] bin = GetBinary(FileNameText.Text);
 
-            USARTBootloader loader = null;
             try {
                 // USARTBootloaderの初期化
-                loader = OpenBootLoader();
+                if (loader == null) {
+                    loader = CreateBootLoader();
+                }
+                loader.Open();
+                loader.Init();
 
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -112,7 +118,7 @@ namespace STM32_USART_Bootloader_Form {
 
             } finally {
                 if (loader != null) {
-                    loader.Close();
+                    //loader.Close();
                 }
             }
         }
@@ -198,7 +204,7 @@ namespace STM32_USART_Bootloader_Form {
             return count;
         }
 
-        private USARTBootloader OpenBootLoader() {
+        private USARTBootloader CreateBootLoader() {
             SerialPort port = new SerialPort();
             port.PortName = PortCombo.SelectedItem.ToString();
             port.BaudRate = int.Parse(BaudrateCombo.SelectedItem.ToString());
@@ -208,9 +214,10 @@ namespace STM32_USART_Bootloader_Form {
             port.ReadTimeout = 250;
             port.WriteTimeout = 250;
 
-            USARTBootloader loader = new USARTBootloader(port);
-            //FTDIUSARTBootloader loader = new FTDIUSARTBootloader(port);
-            loader.Open();
+            loader = new USARTBootloader(port);
+            //loader = new FTDIUSARTBootloader(port);
+            //loader = new FT232RUSARTBootloader(port);
+
             return loader;
         }
 
@@ -219,6 +226,51 @@ namespace STM32_USART_Bootloader_Form {
             if (dialog.ShowDialog() == DialogResult.OK) {
                 FileNameText.Text = dialog.FileName;
             }
+        }
+
+
+        private int i = 0;
+
+        /// <summary>
+        /// FT232RのCBUSを操作するサンプルコード
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TestButton_Click(object sender, EventArgs e) {
+            if (loader == null) {
+                loader = CreateBootLoader();
+            }
+            loader.Open();
+
+            if (!(loader is FT232RUSARTBootloader)) {
+                MessageBox.Show("FT232RUSARTBootloader のインスタンスを生成してください。");
+            }
+
+            FT232RUSARTBootloader ftLoader = (FT232RUSARTBootloader)loader;
+            FT232RUSARTBootloader.CBUSConfig conf = new FT232RUSARTBootloader.CBUSConfig();
+            conf.cbus0 = FT_CBUS_OPTIONS.FT_CBUS_IOMODE;
+            conf.cbus1 = FT_CBUS_OPTIONS.FT_CBUS_IOMODE;
+            ftLoader.SetCBusConfig(conf);
+
+            FT232RUSARTBootloader.CBUSBit bits = new FT232RUSARTBootloader.CBUSBit();
+            if (i == 0) {
+                bits.cbus0 = false;
+                bits.cbus1 = false;
+                i++;
+            } else if (i == 1) {
+                bits.cbus0 = true;
+                bits.cbus1 = false;
+                i++;
+            } else if (i == 2) {
+                bits.cbus0 = false;
+                bits.cbus1 = true;
+                i++;
+            } else if (i == 3) {
+                bits.cbus0 = true;
+                bits.cbus1 = true;
+                i = 0;
+            }
+            ftLoader.SetCBusBit(bits);
         }
 
     }

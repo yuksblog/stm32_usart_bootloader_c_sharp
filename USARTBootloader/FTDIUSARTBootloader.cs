@@ -8,12 +8,19 @@ using System.Threading.Tasks;
 using static FTD2XX_NET.FTDI;
 
 namespace ST.Boot.USART {
+    /// <summary>
+    /// FTDIのドライバAPIを使用して高速化したコネクター
+    /// </summary>
     public class FTDIUSARTBootloader : USARTBootloader {
 
-        private FTDI ftdi = null;
+        protected FTDI ftdi = null;
 
-        private int latencyTime = 16;
+        private int latencyTime = 1;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="port"></param>
         public FTDIUSARTBootloader(SerialPort port) : base(port) {}
 
         protected override void ClearBuffer() {
@@ -21,7 +28,11 @@ namespace ST.Boot.USART {
             ftdi.Purge(FT_PURGE.FT_PURGE_TX);
         }
 
-        protected override void OpenInternal() {
+        public override void Open() {
+            if (IsOpen()) {
+                return;
+            }
+
             ftdi = new FTDI();
 
             // ポートの数
@@ -100,8 +111,9 @@ namespace ST.Boot.USART {
                 throw new InvalidOperationException("Could not found the port. portName=" + port.PortName);
             }
         }
-
+        
         public override void Close() {
+            isInitialized = false;
             if (ftdi != null && ftdi.IsOpen) {
                 // バッファをクリア
                 ClearBuffer();
