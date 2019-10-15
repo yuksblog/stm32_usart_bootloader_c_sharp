@@ -30,6 +30,7 @@ port.WriteTimeout = 250;
 // create and open USARTBootloader
 USARTBootloader loader = new USARTBootloader(port);
 loader.Open();
+loader.Init();
 
 // separate binary file(bin) by 256[byte].
 int count = bin.Length / 256;
